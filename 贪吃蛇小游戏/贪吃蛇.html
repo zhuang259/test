@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    *{
+        margin: 0;
+        padding: 0;
+    }
+    td{
+        width: 48px;
+        height: 48px;
+    }
+    table{
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+
+    #map{
+        width: 500px;
+        height: 500px;
+        background-color: pink;
+    }
+</style>
+<body>
+    <!-- 地图是500*500 10*10 表格就是用来地图的刻度的 -->
+    <table border="1" cellspacing="0">
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+    <!-- 因为蛇头red 蛇尾 身体yellow 包括食物blue都是用js动态创建出来的div
+    必须要以div做地图 方便后期 appendChild -->
+    <div id="map">
+
+    </div>
+    <h1>Socore:</h1>
+    <button>快</button>
+    <button>中</button>
+    <button>慢</button>
+    <script>
+        // 在刷新页面时不仅要产生地图  也要产生两个小的div  分别贪吃蛇的身体和蛇头
+        // 由于蛇头 食物 以及多个身体是动态创建的div
+        //封装一个方法 用于创建div元素 放入地图里
+        //参数可以扩展函数 功能
+        var bodyNodes = []
+        var Nodes = []
+        var map=document.getElementById("map")
+        function createDiv(color){
+            var div=document.createElement("div")//创建了一个div节点
+            div.style.width="50px";
+            div.style.height="50px";
+            div.style.position="absolute"//为了改变位置  并且不让其独立成行
+            //位置是随机产生的 js随机数
+            //Math.random()
+            //0-450  50 0-9
+            //产生一个0-9随机数 parseInt(Math.random()*10)
+            //Math.random()产生0-1的随机数  小数 不包含1 [0,1)
+            //如何让蛇头移动起来  操作蛇头 js找到蛇头对应的div
+            div.style.left=parseInt(Math.random()*10)*50+"px"
+            div.style.top=parseInt(Math.random()*10)*50+"px"
+            div.style.backgroundColor=color
+            map.appendChild(div)
+            return div
+        }
+        // 如何让蛇头移动起来  操作蛇头  js找到蛇头对应的div
+        // 蛇头移动 如何让蛇头移动起来 四个方向 需要判断下当前蛇头要向哪个方向移动
+         // .value 索引值 左 右 上 下
+        var headNode=createDiv("red")//创建红色的蛇头
+        headNode.value = "左"// .value判断蛇头的移动方向
+        console.log(headNode.value)
+        Nodes.push(headNode)
+        var foodNode=createDiv("blue")//创建蓝色的食物
+       
+       function move(){
+      if (bodyNodes.length>0) {
+        // 身体移动通过循环遍历让身体移动起来
+        // 如何让身体跟随头部运动起来？？？
+        //身体跟随前一块移动  让他走前一块上一次的行走方向
+        // 反向循环为什么就可以了
+        for (var n =bodyNodes.length-1;n >= 0; n--) {
+            // console.log(bodyNodes[n].value)
+            // bodyNodes.[0]的移动方向会永远跟headNode保持一致
+        //     if(n==0){
+        //     bodyNodes[n].value=headNode.value
+        // }else{
+        //     bodyNodes[n].value=bodyNodes[n-1].value
+        // }
+            switch(bodyNodes[n].value){
+            case "左":
+            // console.log("正在向左走")
+            bodyNodes[n].style.left = parseInt(bodyNodes[n].style.left)-50+"px"
+            break
+            case "右":
+            bodyNodes[n].style.left = parseInt(bodyNodes[n].style.left)+50+"px"
+            break
+            case "上":
+            bodyNodes[n].style.top = parseInt(bodyNodes[n].style.top)-50+"px"
+            break
+            case "下":
+            // headNode.style.top = parseInt(headNode.style.top)+50-"px"
+            bodyNodes[n].style.top = parseInt(bodyNodes[n].style.top)+50+"px"
+            break
+        }
+        //n=0上一次 headNode
+        //n=1 n=0 上一次 headNode
+        //0 headNode
+        if(n==0){
+            // bodyNodes[0] headNode的上一次方向
+            bodyNodes[n].value=headNode.value
+        }else{
+            bodyNodes[n].value=bodyNodes[n-1].value
+        }
+            
+        }
+      }
+        //    判断当前蛇头的移动方向 .value属性
+        switch(headNode.value){
+            case "左":
+            // console.log("正在向左走")
+            headNode.style.left = parseInt(headNode.style.left)-50+"px"
+            break
+            case "右":
+            // headNode.style.left = parseInt(headNode.style.left)+50+"px"
+            // headNode.style.left = parseInt(headNode.style.left)+50+"px"
+            headNode.style.left = parseInt(headNode.style.left)+50+"px"
+            break
+            case "上":
+            headNode.style.top = parseInt(headNode.style.top)-50+"px"
+            break
+            case "下":
+            // headNode.style.top = parseInt(headNode.style.top)+50-"px"
+            headNode.style.top = parseInt(headNode.style.top)+50+"px"
+            break
+        }
+        // 碰撞检测 检测是否和食物发生碰撞（两个元素重合了 headNode 和 foodNode）
+        if(headNode.style.left==foodNode.style.left&&headNode.style.top==foodNode.style.top){//吃到食物
+       
+        // 产生一个新的身体 位置 跟在最后一个身体 如果没有身体则跟在头部的后边
+        var bodyNode = createDiv("yellow")
+        // 需要找到当前的最后一块 把身体放入一个数组中
+        var lastNode
+        if(bodyNodes.length>0){
+            lastNode=bodyNodes[bodyNodes.length-1]
+        }
+        else{
+            lastNode=headNode
+        }
+        // 如何让新产生的身体  跟在最后一块的后面 需要知道当前最后一块的行走方向 
+        // 假如最后一块 向左 新的身体在其右侧出现 .value 移动方向
+        switch(lastNode.value){
+            case "左":
+            bodyNode.style.left= parseInt(lastNode.style.left)+50+"px"
+            bodyNode.style.top = lastNode.style.top
+            break
+            case "右":
+            bodyNode.style.left =parseInt(lastNode.style.left)-50+"px"
+            bodyNode.style.top = lastNode.style.top
+            break
+            case "上":
+            bodyNode.style.left=lastNode.style.left
+            bodyNode.style.top = parseInt(lastNode.style.top)+50+"px"
+            break
+            case "下":
+            bodyNode.style.left = lastNode.style.left
+            bodyNode.style.top = parseInt(lastNode.style.top)-50+"px"
+            break
+        }
+        bodyNode.value = lastNode.value 
+        // 新的身体要跟前一块身体 lastNode
+        
+        bodyNodes.push(bodyNode)
+        //食物位置更新 更新后会和身体重合到一起（身体太长后会重合）
+        console.log(lastNode)
+        Nodes.push(bodyNode)
+        var px=parseInt(Math.random()*10)*50+"px"
+        var py=parseInt(Math.random()*10)*50+"px"
+        
+        for(var n = 0; n < Nodes.length; n++){
+            if(parseInt(Nodes[n].style.left)==px&&parseInt(Nodes[n].style.top)==py){
+                px=parseInt(Math.random()*10)*50+"px"
+                py=parseInt(Math.random()*10)*50+"px"
+                n=-1
+            }
+        }
+        foodNode.style.left=parseInt(Math.random()*10)*50+"px"
+        foodNode.style.top=parseInt(Math.random()*10)*50+"px"
+      
+        }
+       }
+       var t = setInterval(move,500)
+         // 贪吃蛇的死法
+        //撞墙死
+        if(parseInt(headNode.style.left)<0||parseInt(headNode.style.left)>450||parseInt(headNode.style.top)<0||parseInt(headNode.style.top)>450){
+            clearInterval(t)
+            alert("撞死了")
+        }
+        //吃到身体也要死
+        if(bodyNodes.length>0){
+            for(var n = 0; n<bodyNodes.length;n++){
+                if(headNode.style.left==bodyNodes[n].style.left&&headNode.style.top==bodyNodes[n].style.top){
+                    alert("咬到尾巴了")
+                    clearInterval(t)
+                }
+            }
+        }
+    //    通过键盘的按键 来改变蛇头的移动方向
+    // onkeydown 键盘按下事件 根据小键盘 上下左右来更改 对应蛇头移动的位置
+    // 键盘的键值 通过不同键值 对应不同键
+    // e表示事件对象
+    //    document.onkeydown=function(e){
+    //        console.log(e.keyCode)
+    //        switch(e.keyCode){
+    //        case 37:
+    //        headNode.value = "右"
+    //        break
+    //        case 38:
+    //        headNode.value = "上"
+    //        break
+    //        case 39:
+    //        headNode.value = "左"
+    //        break
+    //        case 40:
+    //        headNode.value = "下"
+    //        break
+    //    }
+    //    }
+    document.onkeydown=function(e){
+        // console.log(e.keyCode)
+        switch(e.keyCode){
+            //锁住了贪吃蛇的移动方向
+            case 39:
+            if(headNode.value!="左"||bodyNodes.length==0){
+            headNode.value ="右"
+            }
+            break
+            case 38:
+            if(headNode.value!="下"||bodyNodes.length==0){
+            headNode.value ="上"
+            }
+            break
+            case 37:
+            if(headNode.value!="右"||bodyNodes.length==0){
+            headNode.value ="左"
+            }
+            break
+            case 40:
+                if(headNode.value!="上"||bodyNodes.length==0){
+            headNode.value ="下"
+                }
+            break
+        }
+    }
+      
+        // headNode.value = "左"
+        // console.log(headNode.value)
+        // function move(){
+        //     switch(headNode.value){
+        //     case "左":
+        //     headNode.style.left=parseInt(headNode.style.left)-50+"px"
+        //     break
+        //     case "右":
+        //     headNode.style.left=parseInt(headNode.style.left)-50+"px"
+        //     break
+        //     case "上":
+        //     headNode.style.left=parseInt(headNode.style.left)-50+"px"
+        //     break
+        //     case "下":
+        //     headNode.style.left=parseInt(headNode.style.left)-50+"px"
+        //     break
+        // }
+        // var t=setInterval(move,1000)
+        // }
+       
+       
+    </script>
+</body>
+</html>
